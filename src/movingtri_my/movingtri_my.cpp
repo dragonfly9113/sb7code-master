@@ -44,8 +44,11 @@ class movingtri_my_app : public sb7::application
 			"layout (location = 0) in vec4 offset;							   \n"
 			"layout (location = 1) in vec4 color;							   \n"
 			"                                                                  \n"
-			"// 'vs_color' is an output and will be sent to the next shader stage \n"
-			"out vec4 vs_color;												   \n"
+			"// Declare VS_OUT as an output interface block					   \n"
+			"out VS_OUT														   \n"
+			"{																   \n"
+			"	vec4 color;													   \n"
+			"} vs_out;                                                         \n"
 			"																   \n"
 			"void main(void)                                                   \n"
 			"{                                                                 \n"
@@ -57,7 +60,7 @@ class movingtri_my_app : public sb7::application
 			"    gl_Position = vertices[gl_VertexID] + offset;                 \n"
 			"																   \n"
 			"	 // Output a fixed value for vs_color						   \n"
-			"	 vs_color = color;											   \n"
+			"	 vs_out.color = color;										   \n"
             "}                                                                 \n"
         };
 
@@ -65,8 +68,11 @@ class movingtri_my_app : public sb7::application
 		{
 			"#version 420 core                                                 \n"
 			"                                                                  \n"
-			"// Input from the vertex shader								   \n"
-			"in vec4 vs_color;												   \n"
+			"// Declare VS_OUT as an input interface block					   \n"
+			"in VS_OUT														   \n"
+			"{                                                                 \n"
+			"	vec4 color;				// Send color to the next stage		   \n"
+			"} fs_in;                                                          \n"
 			"																   \n"
 			"// Output to the framebuffer									   \n"
 			"out vec4 color;                                                   \n"
@@ -74,7 +80,7 @@ class movingtri_my_app : public sb7::application
 			"void main(void)                                                   \n"
 			"{                                                                 \n"
 			"    //color = vec4(0.0, 0.8, 1.0, 1.0);                           \n"
-			"	 color = vs_color;											   \n"
+			"	 color = fs_in.color;										   \n"
             "}                                                                 \n"
         };
 
