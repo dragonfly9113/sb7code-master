@@ -61,10 +61,10 @@ class tessellatedtri_my_app : public sb7::application
 			"	// Only if I am invocation 0 ...							   \n"
 			"	if (gl_InvocationID == 0)									   \n"
 			"	{															   \n"
-			"		gl_TessLevelInner[0] = 5.0;								   \n"
-			"		gl_TessLevelOuter[0] = 5.0;								   \n"
-			"		gl_TessLevelOuter[1] = 5.0;								   \n"
-			"		gl_TessLevelOuter[2] = 5.0;								   \n"
+			"		gl_TessLevelInner[0] = 9.0;								   \n"
+			"		gl_TessLevelOuter[0] = 9.0;								   \n"
+			"		gl_TessLevelOuter[1] = 9.0;								   \n"
+			"		gl_TessLevelOuter[2] = 9.0;								   \n"
 			"	}															   \n"
 			"	// Everybody copies their input to their output				   \n"
 			"	gl_out[gl_InvocationID].gl_Position =						   \n"
@@ -105,15 +105,18 @@ class tessellatedtri_my_app : public sb7::application
 			"}                                                                 \n"
 		};
 
-        static const char * fs_source[] =
-        {
-            "#version 420 core                                                 \n"
-            "                                                                  \n"
-            "out vec4 color;                                                   \n"
-            "                                                                  \n"
-            "void main(void)                                                   \n"
-            "{                                                                 \n"
-            "    color = vec4(0.0, 0.8, 1.0, 1.0);                             \n"
+		static const char * fs_source[] =
+		{
+			"#version 420 core                                                 \n"
+			"                                                                  \n"
+			"out vec4 color;                                                   \n"
+			"                                                                  \n"
+			"void main(void)                                                   \n"
+			"{                                                                 \n"
+			"    color = vec4(sin(gl_FragCoord.x * 0.25) * 0.5 + 0.5,			\n"
+			"				  cos(gl_FragCoord.y * 0.25) * 0.5 + 0.5,			\n"
+			"				  sin(gl_FragCoord.x * 0.15) * cos(gl_FragCoord.y * 0.15),	\n"
+			"				  1.0);												\n"
             "}                                                                 \n"
         };
 
@@ -141,7 +144,7 @@ class tessellatedtri_my_app : public sb7::application
         glAttachShader(program, vs);
 		glAttachShader(program, tcs);
 		glAttachShader(program, tes);
-		glAttachShader(program, gs);
+		//glAttachShader(program, gs);
         glAttachShader(program, fs);
 
         glLinkProgram(program);
@@ -156,7 +159,7 @@ class tessellatedtri_my_app : public sb7::application
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
     virtual void render(double currentTime)
@@ -167,7 +170,7 @@ class tessellatedtri_my_app : public sb7::application
         glUseProgram(program);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		glPointSize(5.0);
+		//glPointSize(5.0);
 		glDrawArrays(GL_PATCHES, 0, 3);
     }
 
