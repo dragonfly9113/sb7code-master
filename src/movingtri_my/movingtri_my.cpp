@@ -40,27 +40,41 @@ class movingtri_my_app : public sb7::application
 		{
 			"#version 420 core                                                 \n"
 			"                                                                  \n"
+			"// 'offset' and 'color' are input vertex attributes			   \n"
 			"layout (location = 0) in vec4 offset;							   \n"
+			"layout (location = 1) in vec4 color;							   \n"
 			"                                                                  \n"
-            "void main(void)                                                   \n"
-            "{                                                                 \n"
-            "    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),  \n"
-            "                                   vec4(-0.25, -0.25, 0.5, 1.0),  \n"
-            "                                   vec4( 0.25,  0.25, 0.5, 1.0)); \n"
-            "                                                                  \n"
-            "    gl_Position = vertices[gl_VertexID] + offset;                 \n"
+			"// 'vs_color' is an output and will be sent to the next shader stage \n"
+			"out vec4 vs_color;												   \n"
+			"																   \n"
+			"void main(void)                                                   \n"
+			"{                                                                 \n"
+			"    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),  \n"
+			"                                   vec4(-0.25, -0.25, 0.5, 1.0),  \n"
+			"                                   vec4( 0.25,  0.25, 0.5, 1.0)); \n"
+			"                                                                  \n"
+			"    //Add 'offset' to our hard-coded vertex position			   \n"
+			"    gl_Position = vertices[gl_VertexID] + offset;                 \n"
+			"																   \n"
+			"	 // Output a fixed value for vs_color						   \n"
+			"	 vs_color = color;											   \n"
             "}                                                                 \n"
         };
 
-        static const char * fs_source[] =
-        {
-            "#version 420 core                                                 \n"
-            "                                                                  \n"
-            "out vec4 color;                                                   \n"
-            "                                                                  \n"
-            "void main(void)                                                   \n"
-            "{                                                                 \n"
-            "    color = vec4(0.0, 0.8, 1.0, 1.0);                             \n"
+		static const char * fs_source[] =
+		{
+			"#version 420 core                                                 \n"
+			"                                                                  \n"
+			"// Input from the vertex shader								   \n"
+			"in vec4 vs_color;												   \n"
+			"																   \n"
+			"// Output to the framebuffer									   \n"
+			"out vec4 color;                                                   \n"
+			"                                                                  \n"
+			"void main(void)                                                   \n"
+			"{                                                                 \n"
+			"    //color = vec4(0.0, 0.8, 1.0, 1.0);                           \n"
+			"	 color = vs_color;											   \n"
             "}                                                                 \n"
         };
 
@@ -96,6 +110,13 @@ class movingtri_my_app : public sb7::application
 							 0.0f, 0.0f };
 		// Update the value of input attribute 0
 		glVertexAttrib4fv(0, attrib);
+
+		// Update the color of the triangle
+		const GLfloat tri_color[] = { 0.0f,
+									  (float)sin(currentTime) * 0.5f + 0.5f,
+									  (float)cos(currentTime) * 0.5f + 0.5f,
+									  1.0f };
+		glVertexAttrib4fv(1, tri_color);
 
 		// Draw one triangle
         glDrawArrays(GL_TRIANGLES, 0, 3);
