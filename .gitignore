@@ -1,5 +1,7 @@
 bin/
 build/
 extern/
+lib/
+Win32/
 *.dir/
 *.txt.user

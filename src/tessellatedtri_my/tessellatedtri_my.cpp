@@ -54,7 +54,7 @@ class tessellatedtri_my_app : public sb7::application
 		{
 			"#version 420 core                                                 \n"
 			"                                                                  \n"
-			"layout (vertices = 3) out										   \n"
+			"layout (vertices = 3) out;										   \n"
 			"                                                                  \n"
 			"void main(void)                                                   \n"
 			"{                                                                 \n"
@@ -67,8 +67,22 @@ class tessellatedtri_my_app : public sb7::application
 			"		gl_TessLevelOuter[2] = 5.0;								   \n"
 			"	}															   \n"
 			"	// Everybody copies their input to their output				   \n"
-			"	gl_out[gl_InvocationID].gl_Position = 							\n"
-			"		gl_in[gl_InvocationID].gl_Position							\n"
+			"	gl_out[gl_InvocationID].gl_Position =						   \n"
+			"						gl_in[gl_InvocationID].gl_Position;		   \n"
+			"}                                                                 \n"
+		};
+
+		static const char * tes_source[] =
+		{
+			"#version 420 core                                                 \n"
+			"                                                                  \n"
+			"layout (triangles, equal_spacing, cw) in;							\n"
+			"                                                                  \n"
+			"void main(void)                                                   \n"
+			"{                                                                 \n"
+			"	gl_Position = (gl_TessCoord.x * gl_in[0].gl_Position +			\n"
+			"				   gl_TessCoord.y * gl_in[1].gl_Position +			\n"
+			"				   gl_TessCoord.z * gl_in[2].gl_Position);			\n"
 			"}                                                                 \n"
 		};
 
@@ -89,17 +103,29 @@ class tessellatedtri_my_app : public sb7::application
         glShaderSource(fs, 1, fs_source, NULL);
         glCompileShader(fs);
 
+		GLuint tcs = glCreateShader(GL_TESS_CONTROL_SHADER);
+		glShaderSource(tcs, 1, tcs_source, NULL);
+		glCompileShader(tcs);
+
+		GLuint tes = glCreateShader(GL_TESS_EVALUATION_SHADER);
+		glShaderSource(tes, 1, tes_source, NULL);
+		glCompileShader(tes);
+
         GLuint vs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vs, 1, vs_source, NULL);
         glCompileShader(vs);
 
         glAttachShader(program, vs);
+		glAttachShader(program, tcs);
+		glAttachShader(program, tes);
         glAttachShader(program, fs);
 
         glLinkProgram(program);
 
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
     virtual void render(double currentTime)
@@ -108,7 +134,8 @@ class tessellatedtri_my_app : public sb7::application
         glClearBufferfv(GL_COLOR, 0, green);
 
         glUseProgram(program);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_PATCHES, 0, 3);
     }
 
     virtual void shutdown()
