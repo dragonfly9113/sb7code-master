@@ -66,6 +66,7 @@ set(EXAMPLES
   equirectangular
   fontdemo
   fragcolorfrompos
+  fragcolorfrompos_my
   fragmentlist
   grass
   gsculling
