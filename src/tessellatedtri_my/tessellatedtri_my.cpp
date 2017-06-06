@@ -86,6 +86,25 @@ class tessellatedtri_my_app : public sb7::application
 			"}                                                                 \n"
 		};
 
+		static const char * gs_source[] =
+		{
+			"#version 420 core                                                 \n"
+			"                                                                  \n"
+			"layout (triangles) in;												\n"
+			"layout (points, max_vertices = 3) out;								\n"
+			"                                                                  \n"
+			"void main(void)                                                   \n"
+			"{                                                                 \n"
+			"	int i;															\n"
+			"																	\n"
+			"	for (i = 0; i < gl_in.length(); i++)							\n"
+			"	{																\n"
+			"		gl_Position = gl_in[i].gl_Position;							\n"
+			"		EmitVertex();												\n"
+			"	}																\n"
+			"}                                                                 \n"
+		};
+
         static const char * fs_source[] =
         {
             "#version 420 core                                                 \n"
@@ -111,6 +130,10 @@ class tessellatedtri_my_app : public sb7::application
 		glShaderSource(tes, 1, tes_source, NULL);
 		glCompileShader(tes);
 
+		GLuint gs = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(gs, 1, gs_source, NULL);
+		glCompileShader(gs);
+
         GLuint vs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vs, 1, vs_source, NULL);
         glCompileShader(vs);
@@ -118,9 +141,17 @@ class tessellatedtri_my_app : public sb7::application
         glAttachShader(program, vs);
 		glAttachShader(program, tcs);
 		glAttachShader(program, tes);
+		glAttachShader(program, gs);
         glAttachShader(program, fs);
 
         glLinkProgram(program);
+
+
+		glDeleteShader(vs);
+		glDeleteShader(tcs);
+		glDeleteShader(tes);
+		glDeleteShader(gs);
+		glDeleteShader(fs);
 
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -135,6 +166,8 @@ class tessellatedtri_my_app : public sb7::application
 
         glUseProgram(program);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glPointSize(5.0);
 		glDrawArrays(GL_PATCHES, 0, 3);
     }
 
