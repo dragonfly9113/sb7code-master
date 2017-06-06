@@ -124,6 +124,7 @@ set(EXAMPLES
   tessellatedcube
   tessellatedgstri
   tessellatedtri
+  tessellatedtri_my
   tessmodes
   tesssubdivmodes
   toonshading
