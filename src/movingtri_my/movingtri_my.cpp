@@ -36,17 +36,19 @@ class movingtri_my_app : public sb7::application
 
     virtual void startup()
     {
-        static const char * vs_source[] =
-        {
-            "#version 420 core                                                 \n"
-            "                                                                  \n"
+		static const char * vs_source[] =
+		{
+			"#version 420 core                                                 \n"
+			"                                                                  \n"
+			"layout (location = 0) in vec4 offset;							   \n"
+			"                                                                  \n"
             "void main(void)                                                   \n"
             "{                                                                 \n"
             "    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),  \n"
             "                                   vec4(-0.25, -0.25, 0.5, 1.0),  \n"
             "                                   vec4( 0.25,  0.25, 0.5, 1.0)); \n"
             "                                                                  \n"
-            "    gl_Position = vertices[gl_VertexID];                          \n"
+            "    gl_Position = vertices[gl_VertexID] + offset;                 \n"
             "}                                                                 \n"
         };
 
@@ -58,7 +60,7 @@ class movingtri_my_app : public sb7::application
             "                                                                  \n"
             "void main(void)                                                   \n"
             "{                                                                 \n"
-            "    color = vec4(1.0, 0.8, 0.0, 1.0);                             \n"
+            "    color = vec4(0.0, 0.8, 1.0, 1.0);                             \n"
             "}                                                                 \n"
         };
 
@@ -82,10 +84,20 @@ class movingtri_my_app : public sb7::application
 
     virtual void render(double currentTime)
     {
-        static const GLfloat green[] = { 0.0f, 0.25f, 0.0f, 1.0f };
-        glClearBufferfv(GL_COLOR, 0, green);
+        const GLfloat color[] = { (float)sin(currentTime) * 0.5f + 0.5f,
+  								  (float)cos(currentTime) * 0.5f + 0.5f,
+								  0.0f, 1.0f };
+        glClearBufferfv(GL_COLOR, 0, color);
 
         glUseProgram(program);
+
+		GLfloat attrib[] = { (float)sin(currentTime) * 0.5f,
+							 (float)cos(currentTime) * 0.6f,
+							 0.0f, 0.0f };
+		// Update the value of input attribute 0
+		glVertexAttrib4fv(0, attrib);
+
+		// Draw one triangle
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
