@@ -117,6 +117,7 @@ set(EXAMPLES
   singletri
   sparsetexture
   spinnycube
+  spinnycube_my
   springmass
   ssao
   starfield
