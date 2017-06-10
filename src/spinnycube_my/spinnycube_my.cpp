@@ -24,6 +24,9 @@
 #include <sb7.h>
 #include <vmath.h>
 
+// define this macro to draw multiple cubes at one time
+#define MULTIPLE_CUBES
+
 class spinnycube_my_app : public sb7::application
 {
     void init()
@@ -172,7 +175,8 @@ class spinnycube_my_app : public sb7::application
 
 		glViewport(0, 0, info.windowWidth, info.windowHeight);
 		glClearBufferfv(GL_COLOR, 0, green);
-		glClearBufferfv(GL_DEPTH, 0, &one);
+		//glClearBufferfv(GL_DEPTH, 0, &one);
+		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
 
 		// Activate our program
         glUseProgram(program);
@@ -180,8 +184,28 @@ class spinnycube_my_app : public sb7::application
 		// Set the project matrix
 		glUniformMatrix4fv(proj_location, 1, GL_FALSE, proj_matrix);
 
-		// Set the model-view matrix
-		float f = (float)currentTime * (float)M_PI * 0.1f;
+#ifdef MULTIPLE_CUBES
+		// Draw 24 cubes...
+		for (int i = 0; i < 24; i++)
+		{
+			// Calculate a new model-view matrix for each one
+			float f = (float)i + (float)currentTime * 0.3f;
+			vmath::mat4 mv_matrix =
+				vmath::translate(0.0f, 0.0f, -6.0f) *
+				vmath::rotate((float)currentTime * 45.0f, 0.0f, 1.0f, 0.0f) *
+				vmath::rotate((float)currentTime * 21.0f, 1.0f, 0.0f, 0.0f) *
+				vmath::translate(sinf(2.1f * f) * 2.0f,
+					cosf(1.7f * f) * 2.0f,
+					sinf(1.3f * f) * cosf(1.5f * f) * 2.0f);
+
+			// Update the uniform
+			glUniformMatrix4fv(mv_location, 1, GL_FALSE, mv_matrix);
+
+			// Draw - notice that we haven't updated the projection matrix
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+#else
+		float f = (float)currentTime * 0.3f;
 		vmath::mat4 mv_matrix =
 			vmath::translate(0.0f, 0.0f, -4.0f) *
 			vmath::translate(sinf(2.1f * f) * 0.5f,
@@ -193,7 +217,9 @@ class spinnycube_my_app : public sb7::application
 		glUniformMatrix4fv(mv_location, 1, GL_FALSE, mv_matrix);
 
 		// Draw 6 faces of 2 triangles of 3 vertices each = 36 vertices
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+#endif
     }
 
     virtual void shutdown()
