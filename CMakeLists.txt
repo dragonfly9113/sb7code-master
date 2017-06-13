@@ -113,6 +113,7 @@ set(EXAMPLES
   simpleclear
   simpletexcoords
   simpletexture
+  simpletexture_my
   singlepoint
   singletri
   sparsetexture
