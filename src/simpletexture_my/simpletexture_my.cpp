@@ -23,7 +23,7 @@
 
 #include <sb7.h>
 
-class singlepoint_app : public sb7::application
+class simpletexture_my_app : public sb7::application
 {
     void init()
     {
@@ -42,25 +42,61 @@ class singlepoint_app : public sb7::application
             "                                                                  \n"
             "void main(void)                                                   \n"
             "{                                                                 \n"
-            "    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),  \n"
-            "                                   vec4(-0.25, -0.25, 0.5, 1.0),  \n"
-            "                                   vec4( 0.25,  0.25, 0.5, 1.0)); \n"
+            "    const vec4 vertices[] = vec4[](vec4( 0.75, -0.75, 0.5, 1.0),  \n"
+            "                                   vec4(-0.75, -0.75, 0.5, 1.0),  \n"
+            "                                   vec4( 0.75,  0.75, 0.5, 1.0)); \n"
             "                                                                  \n"
             "    gl_Position = vertices[gl_VertexID];                          \n"
             "}                                                                 \n"
         };
 
-        static const char * fs_source[] =
-        {
-            "#version 420 core                                                 \n"
-            "                                                                  \n"
-            "out vec4 color;                                                   \n"
-            "                                                                  \n"
-            "void main(void)                                                   \n"
-            "{                                                                 \n"
-            "    color = vec4(0.0, 0.8, 1.0, 1.0);                             \n"
+		static const char * fs_source[] =
+		{
+			"#version 420 core                                                 \n"
+			"                                                                  \n"
+			"uniform sampler2D s;                                              \n"
+			"                                                                  \n"
+			"out vec4 color;                                                   \n"
+			"                                                                  \n"
+			"void main(void)                                                   \n"
+			"{                                                                 \n"
+			"    //color = vec4(0.0, 0.8, 1.0, 1.0);                            \n"
+			"	 //color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);			\n"
+			"    color = texture(s, gl_FragCoord.xy / textureSize(s, 0));       \n"
             "}                                                                 \n"
         };
+
+		GLuint texture;
+
+		// Generate a name for the texture
+		glGenTextures(1, &texture);
+
+		// Now bind it to the context using the GL_TEXTURE_2D binding point
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		// Specify the amount of storage we want to use for the texture
+		glTexStorage2D(GL_TEXTURE_2D,   // 2D texture
+			1,               // 1 mipmap levels
+			GL_RGBA32F,      // 32-bit floating-point RGBA data
+			256, 256);       // 256 x 256 texels
+
+		// Define some data to upload into the texture
+		float * data = new float[256 * 256 * 4];
+
+		// generate_texture() is a function that fills memory with image data
+		generate_texture(data, 256, 256);
+
+		// Assume the texture is already bound to the GL_TEXTURE_2D target
+		glTexSubImage2D(GL_TEXTURE_2D,  // 2D texture
+			0,              // Level 0
+			0, 0,           // Offset 0, 0
+			256, 256,       // 256 x 256 texels, replace entire image
+			GL_RGBA,        // Four channel data
+			GL_FLOAT,       // Floating point data
+			data);          // Pointer to data
+
+		// Free the memory we allocated before - \GL now has our data
+		delete[] data;
 
         program = glCreateProgram();
         GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -96,8 +132,25 @@ class singlepoint_app : public sb7::application
     }
 
 private:
+	void generate_texture(float * data, int width, int height)
+	{
+		int x, y;
+
+		for (y = 0; y < height; y++)
+		{
+			for (x = 0; x < width; x++)
+			{
+				data[(y * width + x) * 4 + 0] = (float)((x & y) & 0xFF) / 255.0f;
+				data[(y * width + x) * 4 + 1] = (float)((x | y) & 0xFF) / 255.0f;
+				data[(y * width + x) * 4 + 2] = (float)((x ^ y) & 0xFF) / 255.0f;
+				data[(y * width + x) * 4 + 3] = 1.0f;
+			}
+		}
+	}
+
+private:
     GLuint          program;
     GLuint          vao;
 };
 
-DECLARE_MAIN(singlepoint_app)
+DECLARE_MAIN(simpletexture_my_app)
