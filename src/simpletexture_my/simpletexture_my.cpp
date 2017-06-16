@@ -25,6 +25,8 @@
 #include <vmath.h>
 
 #include <string>
+#include <iostream>
+
 static void print_shader_log(GLuint shader)
 {
 	std::string str;
@@ -38,7 +40,8 @@ static void print_shader_log(GLuint shader)
 	}
 
 #ifdef _WIN32
-	OutputDebugStringA(str.c_str());
+	//OutputDebugStringA(str.c_str());
+	std::cout << str << std::endl;
 #endif
 }
 
@@ -78,7 +81,6 @@ typedef void (APIENTRY *GLDEBUGPROC)(GLenum source,
 	GLsizei length,
 	const GLchar *message,
 	const void *userParam);
-#endif
 
 void APIENTRY simple_print_callback(GLenum source,
 	GLenum type,
@@ -97,6 +99,7 @@ void initialize_debug_output()
 {
 	glDebugMessageCallback(&simple_print_callback, NULL);
 }
+#endif
 
 class simpletexture_my_app : public sb7::application
 {
@@ -115,7 +118,9 @@ public:
 	void startup(void)
 	{
 		// Setup debug message callback function
+		// Seems no need to set up the following since debug context is ON by default in debug mode
 		//initialize_debug_output();
+		//glEnable(GL_DEBUG_OUTPUT);
 
 		// Generate a name for the texture
 		glGenTextures(1, &texture);
@@ -129,7 +134,7 @@ public:
 			GL_RGBA32F,      // 32-bit floating-point RGBA data
 			256, 256);       // 256 x 256 texels
 
-							 // Define some data to upload into the texture
+		// Define some data to upload into the texture
 		float * data = new float[256 * 256 * 4];
 
 		// generate_texture() is a function that fills memory with image data

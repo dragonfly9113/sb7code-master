@@ -325,14 +325,15 @@ protected:
 };
 
 };
+//int CALLBACK WinMain(HINSTANCE hInstance,           \
+//                     HINSTANCE hPrevInstance,       \
+//                     LPSTR lpCmdLine,               \
+//                     int nCmdShow)                  \
 
 #if defined _WIN32
 #define DECLARE_MAIN(a)                             \
 sb7::application *app = 0;                          \
-int CALLBACK WinMain(HINSTANCE hInstance,           \
-                     HINSTANCE hPrevInstance,       \
-                     LPSTR lpCmdLine,               \
-                     int nCmdShow)                  \
+int main()	\
 {                                                   \
     a *app = new a;                                 \
     app->run(app);                                  \
