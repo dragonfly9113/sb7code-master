@@ -156,6 +156,7 @@ public:
             }
         }
 
+		glfwGetFramebufferSize(window, &info.windowWidth, &info.windowHeight);
         startup();
 
         do

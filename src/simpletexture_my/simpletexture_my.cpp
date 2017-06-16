@@ -69,7 +69,8 @@ static const char * fs_source[] =
 	"                                                                               \n"
 	"void main(void)                                                                \n"
 	"{                                                                              \n"
-	"    color = texture(s, gl_FragCoord.xy / textureSize(s, 0));                   \n"
+	"    color = texture(s, gl_FragCoord.xy / textureSize(s, 0));                 \n"
+	"    //color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);							\n"
 	"}                                                                              \n"
 };
 
@@ -122,6 +123,8 @@ public:
 		//initialize_debug_output();
 		//glEnable(GL_DEBUG_OUTPUT);
 
+		std::cout << "info.windowWidth = " << info.windowWidth << " info.windowHeight = " << info.windowHeight << std::endl;
+
 		// Generate a name for the texture
 		glGenTextures(1, &texture);
 
@@ -132,19 +135,19 @@ public:
 		glTexStorage2D(GL_TEXTURE_2D,   // 2D texture
 			8,               // 8 mipmap levels
 			GL_RGBA32F,      // 32-bit floating-point RGBA data
-			256, 256);       // 256 x 256 texels
+			info.windowWidth, info.windowHeight);       // 256 x 256 texels
 
 		// Define some data to upload into the texture
-		float * data = new float[256 * 256 * 4];
+		float * data = new float[info.windowWidth * info.windowHeight * 4];
 
 		// generate_texture() is a function that fills memory with image data
-		generate_texture(data, 256, 256);
+		generate_texture(data, info.windowWidth, info.windowHeight);
 
 		// Assume the texture is already bound to the GL_TEXTURE_2D target
 		glTexSubImage2D(GL_TEXTURE_2D,  // 2D texture
 			0,              // Level 0
 			0, 0,           // Offset 0, 0
-			256, 256,       // 256 x 256 texels, replace entire image
+			info.windowWidth, info.windowHeight,       // 256 x 256 texels, replace entire image
 			GL_RGBA,        // Four channel data
 			GL_FLOAT,       // Floating point data
 			data);          // Pointer to data
