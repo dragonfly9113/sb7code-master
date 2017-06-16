@@ -26,6 +26,8 @@
 #include <sb7ktx.h>
 
 #include <string>
+#include <iostream>
+
 static void print_shader_log(GLuint shader)
 {
     std::string str;
@@ -61,13 +63,15 @@ static const char * fs_source[] =
     "                                                                               \n"
     "uniform sampler2D s;                                                           \n"
     "                                                                               \n"
-    "uniform float exposure;\n"
-    "\n"
+    "uniform float exposure;														\n"
+    "																				\n"
     "out vec4 color;                                                                \n"
     "                                                                               \n"
     "void main(void)                                                                \n"
     "{                                                                              \n"
-    "    color = texture(s, gl_FragCoord.xy / textureSize(s, 0)) * exposure;                   \n"
+    "    color = texture(s, gl_FragCoord.xy / textureSize(s, 0)) * exposure;		\n"
+	"    //color = texture(s, gl_FragCoord.xy / textureSize(s, 0));					\n"
+	"    //color = texture(s, gl_FragCoord.xy);										\n"
     "}                                                                              \n"
 };
 
@@ -112,6 +116,9 @@ public:
 
         glLinkProgram(program);
 
+		s_location = glGetUniformLocation(program, "s");
+		exp_location = glGetUniformLocation(program, "exposure");
+
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
     }
@@ -130,14 +137,19 @@ public:
 
         glUseProgram(program);
         glViewport(0, 0, info.windowWidth, info.windowHeight);
-        glUniform1f(0, (float)(sin(t) * 16.0 + 16.0));
+		float exposure = (float)(sin(t) * 16.0 + 16.0);
+		std::cout << "exposure = " << exposure << std::endl;
+        glUniform1f(exp_location, exposure);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
 private:
     GLuint      texture;
     GLuint      program;
     GLuint      vao;
+	GLint		s_location;
+	GLint		exp_location;
 };
 
 DECLARE_MAIN(simpletexture_app);
